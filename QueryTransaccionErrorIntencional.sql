@@ -37,3 +37,10 @@ BEGIN
     COMMIT TRAN TranExterna;
 END;
 
+-- Instruccion SELECT para ver resultados de los registros insertados
+SELECT * FROM gasto WHERE periodo=2023;
+go
+SELECT * FROM administrador WHERE apeynom= 'JAVIER FRIAS';
+go
+SELECT * FROM  consorcio WHERE idconsorcio = 5;
+

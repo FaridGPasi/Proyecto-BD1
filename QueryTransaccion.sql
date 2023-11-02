@@ -24,10 +24,16 @@ VALUES
 (1, 1, @ConsorcioID, 2023, GETDATE(), 2, 200.00),
 (1, 1, @ConsorcioID, 2023, GETDATE(), 3, 300.00);
 
+-- # # # Comentar COMMIT o ROLLBACK segun lo que se quiera hacer con la transaccion # # #
 -- Si todo se ha completado con éxito, confirmamos la transacción externa
 COMMIT TRANSACTION TranExterna;
 
 -- Si algo sale mal en cualquier punto, revertimos la transacción
-ROLLBACK TRANSACTION TranExterna;
+--ROLLBACK TRANSACTION TranExterna;
 
-select * from administrador;
+-- Instruccion SELECT para ver resultados de los registros insertados
+SELECT * FROM gasto WHERE periodo=2023;
+go
+SELECT * FROM administrador WHERE apeynom= 'JAVIER FRIAS';
+go
+SELECT * FROM  consorcio WHERE idconsorcio = 5;
