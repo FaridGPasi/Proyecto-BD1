@@ -1,18 +1,20 @@
 --Transacciones anidadas
+USE base_consorcio_proyecto;
 /*
-En ocaciones necesitamos llamar a un procedimiento dentro de una 
-transaccion y que éste a su vez tenga otra transacción, 
-con lo cual tendríamos una transacción dentro de otra.
-
-La variable de sql server @@TRANCOUNT indica el numero de transacciones pendientes de finalizar, por ejemplo: 
+En ocaciones necesitamos llamar a un procedimiento dentro de una transaccion y 
+que éste a su vez tenga otra transacción, con lo cual tendríamos una transacción
+dentro de otra.
+La variable de sql server @@TRANCOUNT indica el numero de transacciones pendientes
+de finalizar. Por ejemplo: 
 */
 
 --Iniciamos una transaccion
 BEGIN TRAN 
 SELECT @@TRANCOUNT	AS 'TRANSACCIONES PENDIENTES';
---Iniciamos otras 2 transacciones, y observaremos que se han iniciado 3 transacciones
+--Iniciamos otras 2 transacciones
 BEGIN TRAN 
 BEGIN TRAN 
+--Observaremos que se han iniciado 3 transacciones
 SELECT @@TRANCOUNT	AS 'TRANSACCIONES PENDIENTES (2)';
 
 --ROOLBACK deshace TODOS los cambios hasta el primer BEGIN TRAN y establece @@TRANCOUNT a 0
@@ -27,13 +29,13 @@ Por Ejemplo:
 -- Iniciamos una transaccion "T1"  
 BEGIN TRAN  
 -- Insertar en tabla  
-INSERT INTO conserje (ApeyNom,tel,fechnac,estciv) values ('MARCIELLO WALTER', '374443444', '19630910', 'S')
+INSERT INTO conserje (ApeyNom,tel,fechnac,estciv) VALUES ('MARCIELLO WALTER', '374443444', '19630910', 'S')
   
     -- Iniciamos otra transaccion "T2"
 	BEGIN TRAN  
   
     -- Insertar en tabla  
-	INSERT INTO conserje (ApeyNom,tel,fechnac,estciv) values ('OLIVOS CAMILA', '3794113322', '19760521', 'S') 
+	INSERT INTO conserje (ApeyNom,tel,fechnac,estciv) VALUES ('OLIVOS CAMILA', '3794113322', '19760521', 'S') 
        
     -- ROLLBACK de inserción de tabla (supuestamente de la "T2")  
 	ROLLBACK TRAN  
@@ -50,25 +52,24 @@ ya que no hay ninguna transaccion pendiente.
 */
 
 
-/*
-#Transaccion anidada#
-Para hacer un ROLLBACK sin deshacer todos los cambios usaremos la instruccion SAVE TRANS
-para crear un punto de guardado.
-Sobre el ejemplo anterior, llegado el punto donde queremos iniciar "T2", crearemos un
-punto de guardado llamado "TransaccionAnidada". De esta forma al hacer 
-ROLLBACK TRAN de TransaccionAnidada, se desharan los cambios solo hasta el punto de guardado
+/*#Transaccion anidada#
+Para lograr el cometido anterior, que sería hacer un ROLLBACK sin deshacer todos 
+los cambios, usaremos la instruccion SAVE TRAN para crear un punto de guardado.
+Sobre el ejemplo anterior, llegado el punto donde queremos iniciar "T2", crearemos 
+un punto de guardado llamado "TransaccionAnidada". De esta forma al hacer ROLLBACK
+TRAN de TransaccionAnidada, se desharan los cambios solo hasta el punto de guardado.
 */
 
 -- Iniciamos una transaccion "T1"   
 BEGIN TRAN T1  
--- Insertar en tabla 
-INSERT INTO conserje (ApeyNom,tel,fechnac,estciv) values ('MARCIELLO WALTER', '374443444', '19630910', 'S')
+-- Insertar en tabla (1)
+INSERT INTO conserje (ApeyNom,tel,fechnac,estciv) VALUES ('MARCIELLO WALTER', '374443444', '19630910', 'S')
   
     -- Guardar Transaccion  
 	SAVE TRAN TransaccionAnidada  
   
-    -- Insertar en tabla  
-	INSERT INTO conserje (ApeyNom,tel,fechnac,estciv) values ('OLIVOS CAMILA', '3794113322', '19760521', 'S') 
+    -- Insertar en tabla (2)
+	INSERT INTO conserje (ApeyNom,tel,fechnac,estciv) VALUES ('OLIVOS CAMILA', '3794113322', '19760521', 'S') 
   
 	-- ROLLBACK de inserción de tabla (2)  
 	ROLLBACK TRAN TransaccionAnidada  
@@ -77,7 +78,44 @@ INSERT INTO conserje (ApeyNom,tel,fechnac,estciv) values ('MARCIELLO WALTER', '3
 COMMIT TRAN T1;
 
 /*
-El resultado es el esperado, si hacemos una select de la tabla conserje veremos que 
-sólo se ha insertado el registro ('MARCIELLO WALTER', '374443444', '19630910', 'S') 
-ya que el otro se ha deshecho.
+El resultado es el esperado, si hacemos un SELECT de la tabla conserje veremos que 
+sólo se ha insertado (1), el registro ('MARCIELLO WALTER', '374443444', '19630910', 'S') ,
+ya que el otro(2) se ha deshecho.
 */
+
+---------------------------------------------------------
+
+/*
+Ejemplo de un caso de uso COMPLETO de transaccion anidada
+*/
+
+-- Iniciar la transacción principal
+BEGIN TRAN;
+
+-- Insertar un nuevo consorcio (operación en la transacción principal)
+INSERT INTO consorcio (idprovincia, idlocalidad, idconsorcio, nombre, direccion, idzona, idconserje, idadmin)
+VALUES (1, 1, 101, 'Consorcio Principal', 'Dirección Principal', 1, 1, 1);
+
+-- Iniciar una transacción anidada
+SAVE TRAN TransaccionAnidada;
+
+-- Intentar insertar un nuevo inmueble (operación en la transacción anidada)
+BEGIN TRY
+    INSERT INTO inmueble (idinmueble, nro_piso, dpto, sup_Cubierta, frente, balcon, idprovincia, idlocalidad, idconsorcio)
+    VALUES (1, 1, 'A', 100.00, 1, 0, 1, 1, 101);
+
+    -- Confirmar la transacción anidada
+    COMMIT TRANSACTION TransaccionAnidada;
+
+-- Capturar cualquier error en la transacción anidada
+END TRY
+BEGIN CATCH
+    -- Revertir la transacción anidada en caso de error
+    ROLLBACK TRAN TransaccionAnidada;
+
+    -- Manejar el error (puedes registrar o lanzar una excepción, según sea necesario)
+    PRINT 'Error al insertar en la transacción anidada. Se ha revertido.';
+END CATCH;
+
+-- Confirmar la transacción principal
+COMMIT TRAN;
