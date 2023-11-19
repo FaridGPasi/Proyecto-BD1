@@ -52,7 +52,8 @@ ya que no hay ninguna transaccion pendiente.
 */
 
 
-/*#Transaccion anidada#
+/*
+Uso de Transacciones anidadas.
 Para lograr el cometido anterior, que sería hacer un ROLLBACK sin deshacer todos 
 los cambios, usaremos la instruccion SAVE TRAN para crear un punto de guardado.
 Sobre el ejemplo anterior, llegado el punto donde queremos iniciar "T2", crearemos 
@@ -86,7 +87,7 @@ ya que el otro(2) se ha deshecho.
 ---------------------------------------------------------
 
 /*
-Ejemplo de un caso de uso COMPLETO de transaccion anidada
+Ejemplo de un caso de uso COMPLETO de transacciones anidadas.
 */
 
 -- Iniciar la transacción principal
