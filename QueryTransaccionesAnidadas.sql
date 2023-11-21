@@ -84,7 +84,7 @@ sólo se ha insertado (1), el registro ('MARCIELLO WALTER', '374443444', '1963091
 ya que el otro(2) se ha deshecho.
 */
 
----------------------------------------------------------
+------------------------------------------------------------------------------------------
 
 /*
 Ejemplo de un caso de uso COMPLETO de transacciones anidadas.
@@ -106,7 +106,7 @@ BEGIN TRY
     VALUES (1, 1, 'A', 100.00, 1, 0, 1, 1, 101);
 
     -- Confirmar la transacción anidada
-    COMMIT TRANSACTION TransaccionAnidada;
+    COMMIT TRAN TransaccionAnidada;
 
 -- Capturar cualquier error en la transacción anidada
 END TRY
@@ -115,8 +115,69 @@ BEGIN CATCH
     ROLLBACK TRAN TransaccionAnidada;
 
     -- Manejar el error (puedes registrar o lanzar una excepción, según sea necesario)
-    PRINT 'Error al insertar en la transacción anidada. Se ha revertido.';
+    PRINT 'Error al insertar en la transacción anidada';
 END CATCH;
 
 -- Confirmar la transacción principal
 COMMIT TRAN;
+
+------------------------------------------------------------------------------------------
+
+/*
+Otro Ejemplo de un caso de uso COMPLETO de transacciones anidadas.
+*/
+
+-- Iniciar la transacción principal
+BEGIN TRY
+    BEGIN TRAN;
+
+    DECLARE @AdminID INT, @ConserjeID INT, @ConsorcioID INT;
+
+    -- Insertar nuevo conserje
+    INSERT INTO conserje (apeynom, tel, fechnac, estciv)
+    VALUES ('LOPEZ MICAELA', '379444434', '19730101', 'S');
+    SET @ConserjeID = SCOPE_IDENTITY(); 
+
+    -- Insertar nuevo administrador
+    INSERT INTO administrador (apeynom, viveahi, tel, sexo, fechnac)
+    VALUES ('BASABE MARTIN', 'N', '3794111222', 'M', '19760521');
+    SET @AdminID = SCOPE_IDENTITY(); 
+
+    -- Insertar nuevo consorcio
+    INSERT INTO consorcio (idprovincia, idlocalidad, idconsorcio, nombre, direccion, idzona, idconserje, idadmin)
+    VALUES (1, 1, 101, 'Consorcio Principal', 'Dirección Principal', 1, @ConserjeID, @AdminID);
+    SET @ConsorcioID = SCOPE_IDENTITY(); 
+ 
+    -- Iniciar una transacción anidada para insertar un nuevo inmueble
+    SAVE TRAN TransaccionAnidada;
+
+    BEGIN TRY
+        -- Insertar nuevo inmueble
+        INSERT INTO inmueble (idinmueble, nro_piso, dpto, sup_Cubierta, frente, balcon, idprovincia, idlocalidad, idconsorcio)
+        VALUES (583, 1, 'A', 100.00, 1, 0, 1, 1, @ConsorcioID);
+
+        -- Confirmar la transacción anidada
+        COMMIT TRAN TransaccionAnidada;
+
+    -- Capturar cualquier error en la transacción anidada
+    END TRY
+    BEGIN CATCH
+        -- Revertir la transacción anidada en caso de error
+        ROLLBACK TRAN TransaccionAnidada;
+
+        -- Manejar el error (puedes registrar o lanzar una excepción, según sea necesario)
+        PRINT 'Error al insertar en la transacción anidada';
+        THROW; -- Propagar el error para que sea capturado por el bloque CATCH exterior
+    END CATCH;
+
+    -- Confirmar la transacción principal
+    COMMIT TRAN;
+END TRY
+BEGIN CATCH
+    -- Revertir la transacción principal en caso de error 
+    ROLLBACK TRAN;
+
+    -- Manejar el error (puedes registrar o lanzar una excepción, según sea necesario)
+    PRINT 'Error al insertar en la transacción principal';
+END CATCH;
+
