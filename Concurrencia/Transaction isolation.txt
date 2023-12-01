@@ -1,0 +1,23 @@
+-READ UNCOMMITTED:
+Las transacciones pueden leer datos que han sido modificados pero aún no confirmados por otras transacciones.
+Este nivel ofrece el menor grado de aislamiento y permite lecturas sucias, no repetibles y fantasma.
+instruccion: SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+
+-READ COMMITTED:
+Las transacciones solo pueden leer datos confirmados por otras transacciones.
+No permite lecturas sucias, pero sí puede experimentar problemas de repetibilidad y fantasmas.
+instruccion:  SET TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+-REPEATABLE READ:
+Garantiza que si una transacción lee una fila, ninguna otra transacción puede modificar o insertar una fila con la misma clave hasta que la primera transacción se complete.
+Evita problemas de lecturas sucias y no repetibles, pero aún puede haber lecturas fantasma.
+instruccion: SET TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+-SERIALIZABLE:
+Ofrece el nivel más alto de aislamiento.
+Garantiza que si una transacción lee una fila, ninguna otra transacción puede modificar ni insertar filas con la misma clave hasta que la primera transacción se complete.
+Evita problemas de lecturas sucias, no repetibles y fantasmas.
+instruccion: SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+
+--
+Se puede establecer el nivel de aislamiento para una transacción específica utilizando la instrucción SET TRANSACTION ISOLATION LEVEL antes de iniciar la transacción. Es importante considerar cuidadosamente el nivel de aislamiento que mejor se adapte a los requisitos de consistencia y rendimiento de la aplicación, ya que niveles más altos pueden tener un impacto en el rendimiento debido a la necesidad de bloquear recursos durante más tiempo.

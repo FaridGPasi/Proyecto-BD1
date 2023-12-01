@@ -2,25 +2,24 @@
 Abrir este y el otro script que se encuentran en la misma carpeta, cada uno en una ventana de consulta distinta
 en el DBMS (SQL Server Management Studio en nuestro caso).
 La explicacion se encuentra comentada en cada script.
-Para observar el interbloqueo, ejecutar *PRIMERO* este script, ambos hacen un update pero este cuenta con un delay
-para dar tiempo a ejecutar el otro y poder simular la concurrencia de transacciones
+Para observar el interbloqueo, ejecutar *SEGUNDO* este script, ambos hacen un update pero el primero cuenta con 
+un delay para dar tiempo a ejecutar este y poder simular la concurrencia de transacciones
 */
-USE base_consorcio_proyecto;
+USE base_consorcio_expo;
 GO
 
---TRANSACCION UNO
+--TRANSACCION DOS
 
---PASO 1
+--PASO 2
 
 --INICIAR TRANSACCION
 BEGIN TRAN
-	UPDATE conserje SET apeynom  = 'Update 1 Transaccion 1'
-	WHERE idconserje = 1
-	WAITFOR DELAY '00:00:10' --TIEMPO DE ESPERA PARA EJECUTAR EL OTRO SCRIPT
-
---PASO 3
-	UPDATE administrador SET apeynom = 'Update 2 Transaccion 1'
+	UPDATE administrador SET apeynom = 'Update 1 Transaccion 2'
 	WHERE idadmin = 1
+
+--PASO 4
+	UPDATE conserje SET apeynom = 'Update 2 Transaccion 2'
+	WHERE idconserje = 1
 
 --CONFIRMAR TRANSACCION
 COMMIT TRAN

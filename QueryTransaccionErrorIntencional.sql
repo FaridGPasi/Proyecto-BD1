@@ -5,7 +5,7 @@ DECLARE @AdminID INT, @ConsorcioID INT;
 
 -- Inserción en la tabla "administrador"
 INSERT INTO administrador (apeynom, viveahi, tel, sexo, fechnac)
-VALUES ('JAVIER FRIAS', 'N', '370816973', 'M', '1997-02-24');
+VALUES ('JAVIER FRIAS', 'N', '370816973', 'M', '19970224');
 
 -- Obtener el ID del administrador recién insertado
 SET @AdminID = SCOPE_IDENTITY(); 
@@ -42,5 +42,5 @@ SELECT * FROM gasto WHERE periodo=2023;
 go
 SELECT * FROM administrador WHERE apeynom= 'JAVIER FRIAS';
 go
-SELECT * FROM  consorcio WHERE idconsorcio = 5;
+SELECT * FROM  consorcio WHERE idconsorcio = 999;
 

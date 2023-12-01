@@ -1,5 +1,5 @@
 use base_consorcio_proyecto;
-
+GO
 --Procedimiento almacenado para realizar insercion en consorcio con transacciones
 CREATE PROCEDURE InsertarConsorcio
     @idprovincia INT,
@@ -31,7 +31,7 @@ BEGIN
         PRINT 'Error al insertar el consorcio. Se ha revertido.';
     END CATCH;
 END;
-
+GO
 --Procedimiento almacenado para realizar insercion en inmueble
 CREATE PROCEDURE InsertarInmueble
     @idinmueble INT,
@@ -64,7 +64,7 @@ BEGIN
         PRINT 'Error al insertar el inmueble. Se ha revertido.';
     END CATCH;
 END;
-
+GO
 -- Iniciar la transacción principal
 BEGIN TRAN;
 
@@ -76,3 +76,5 @@ EXEC InsertarInmueble 1, 1, 'A', 100.00, 1, 0, 1, 1, 101;
 
 -- Confirmar la transacción principal
 COMMIT TRAN;
+
+SELECT * FROM consorcio

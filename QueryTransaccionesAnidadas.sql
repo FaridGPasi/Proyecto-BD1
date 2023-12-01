@@ -2,7 +2,7 @@
 USE base_consorcio_proyecto;
 /*
 En ocaciones necesitamos llamar a un procedimiento dentro de una transaccion y 
-que �ste a su vez tenga otra transacci�n, con lo cual tendr�amos una transacci�n
+que este a su vez tenga otra transaccion, con lo cual tendriamos una transaccion
 dentro de otra.
 La variable de sql server @@TRANCOUNT indica el numero de transacciones pendientes
 de finalizar. Por ejemplo: 
@@ -37,8 +37,8 @@ INSERT INTO conserje (ApeyNom,tel,fechnac,estciv) VALUES ('MARCIELLO WALTER', '3
     -- Insertar en tabla  
 	INSERT INTO conserje (ApeyNom,tel,fechnac,estciv) VALUES ('OLIVOS CAMILA', '3794113322', '19760521', 'S') 
        
-    -- ROLLBACK de inserci�n de tabla (supuestamente de la "T2")  
-	ROLLBACK TRAN  
+    -- ROLLBACK de insercion de tabla (supuestamente de la "T2")  
+	ROLLBACK TRAN
   
 -- Hacemos un supuesto commit de "T1" que dara error
 COMMIT TRAN
@@ -54,7 +54,7 @@ ya que no hay ninguna transaccion pendiente.
 
 /*
 Uso de Transacciones anidadas.
-Para lograr el cometido anterior, que ser�a hacer un ROLLBACK sin deshacer todos 
+Para lograr el cometido anterior, que seria hacer un ROLLBACK sin deshacer todos 
 los cambios, usaremos la instruccion SAVE TRAN para crear un punto de guardado.
 Sobre el ejemplo anterior, llegado el punto donde queremos iniciar "T2", crearemos 
 un punto de guardado llamado "TransaccionAnidada". De esta forma al hacer ROLLBACK
@@ -70,55 +70,56 @@ INSERT INTO conserje (ApeyNom,tel,fechnac,estciv) VALUES ('MARCIELLO WALTER', '3
 	SAVE TRAN TransaccionAnidada  
   
     -- Insertar en tabla (2)
-	INSERT INTO conserje (ApeyNom,tel,fechnac,estciv) VALUES ('OLIVOS CAMILA', '3794113322', '19760521', 'S') 
+	INSERT INTO conserje (ApeyNom,tel,fechnac,estciv) VALUES ('OLIVOS CAMILA', '3794113322', '19760521', 'S')
   
-	-- ROLLBACK de inserci�n de tabla (2)  
-	ROLLBACK TRAN TransaccionAnidada  
+	-- ROLLBACK de insercion de tabla (2)  
+	ROLLBACK TRAN TransaccionAnidada
   
 -- Commit de T1  
 COMMIT TRAN T1;
 
 /*
 El resultado es el esperado, si hacemos un SELECT de la tabla conserje veremos que 
-s�lo se ha insertado (1), el registro ('MARCIELLO WALTER', '374443444', '19630910', 'S') ,
+solo se ha insertado (1), el registro ('MARCIELLO WALTER', '374443444', '19630910', 'S') ,
 ya que el otro(2) se ha deshecho.
 */
 
+SELECT * from conserje
 ------------------------------------------------------------------------------------------
 
 /*
 Ejemplo de un caso de uso COMPLETO de transacciones anidadas.
 */
 
--- Iniciar la transacci�n principal
+-- Iniciar la transaccion principal
 BEGIN TRAN;
 
--- Insertar un nuevo consorcio (operaci�n en la transacci�n principal)
+-- Insertar un nuevo consorcio (operacion en la transaccion principal)
 INSERT INTO consorcio (idprovincia, idlocalidad, idconsorcio, nombre, direccion, idzona, idconserje, idadmin)
-VALUES (1, 1, 101, 'Consorcio Principal', 'Direcci�n Principal', 1, 1, 1);
+VALUES (1, 1, 101, 'Consorcio Principal', 'Direccion Principal', 1, 1, 1);
 
--- Iniciar una transacci�n anidada
+-- Iniciar una transaccion anidada
 SAVE TRAN TransaccionAnidada;
 
--- Intentar insertar un nuevo inmueble (operaci�n en la transacci�n anidada)
+-- Intentar insertar un nuevo inmueble (operacion en la transaccion anidada)
 BEGIN TRY
     INSERT INTO inmueble (idinmueble, nro_piso, dpto, sup_Cubierta, frente, balcon, idprovincia, idlocalidad, idconsorcio)
     VALUES (1, 1, 'A', 100.00, 1, 0, 1, 1, 101);
 
-    -- Confirmar la transacci�n anidada
+    -- Confirmar la transaccon anidada
     COMMIT TRAN TransaccionAnidada;
 
--- Capturar cualquier error en la transacci�n anidada
+-- Capturar cualquier error en la transaccion anidada
 END TRY
 BEGIN CATCH
-    -- Revertir la transacci�n anidada en caso de error
+    -- Revertir la transaccion anidada en caso de error
     ROLLBACK TRAN TransaccionAnidada;
 
-    -- Manejar el error (puedes registrar o lanzar una excepci�n, seg�n sea necesario)
-    PRINT 'Error al insertar en la transacci�n anidada';
+    -- Manejar el error (puedes registrar o lanzar una excepcion, segun sea necesario)
+    PRINT 'Error al insertar en la transaccion anidada';
 END CATCH;
 
--- Confirmar la transacci�n principal
+-- Confirmar la transaccion principal
 COMMIT TRAN;
 
 ------------------------------------------------------------------------------------------
@@ -127,7 +128,7 @@ COMMIT TRAN;
 Otro Ejemplo de un caso de uso COMPLETO de transacciones anidadas.
 */
 
--- Iniciar la transacci�n principal
+-- Iniciar la transaccion principal
 BEGIN TRY
     BEGIN TRAN;
 
@@ -145,10 +146,10 @@ BEGIN TRY
 
     -- Insertar nuevo consorcio
     INSERT INTO consorcio (idprovincia, idlocalidad, idconsorcio, nombre, direccion, idzona, idconserje, idadmin)
-    VALUES (1, 1, 101, 'Consorcio Principal', 'Direcci�n Principal', 1, @ConserjeID, @AdminID);
+    VALUES (1, 1, 101, 'Consorcio Principal', 'Direccion Principal', 1, @ConserjeID, @AdminID);
     SET @ConsorcioID = SCOPE_IDENTITY(); 
  
-    -- Iniciar una transacci�n anidada para insertar un nuevo inmueble
+    -- Iniciar una transaccion anidada para insertar un nuevo inmueble
     SAVE TRAN TransaccionAnidada;
 
     BEGIN TRY
@@ -156,28 +157,28 @@ BEGIN TRY
         INSERT INTO inmueble (idinmueble, nro_piso, dpto, sup_Cubierta, frente, balcon, idprovincia, idlocalidad, idconsorcio)
         VALUES (583, 1, 'A', 100.00, 1, 0, 1, 1, @ConsorcioID);
 
-        -- Confirmar la transacci�n anidada
+        -- Confirmar la transaccion anidada
         COMMIT TRAN TransaccionAnidada;
 
-    -- Capturar cualquier error en la transacci�n anidada
+    -- Capturar cualquier error en la transaccion anidada
     END TRY
     BEGIN CATCH
-        -- Revertir la transacci�n anidada en caso de error
+        -- Revertir la transaccion anidada en caso de error
         ROLLBACK TRAN TransaccionAnidada;
 
-        -- Manejar el error (puedes registrar o lanzar una excepci�n, seg�n sea necesario)
-        PRINT 'Error al insertar en la transacci�n anidada';
+        -- Manejar el error (puedes registrar o lanzar una excepcion, segon sea necesario)
+        PRINT 'Error al insertar en la transaccion anidada';
         THROW; -- Propagar el error para que sea capturado por el bloque CATCH exterior
     END CATCH;
 
-    -- Confirmar la transacci�n principal
+    -- Confirmar la transaccion principal
     COMMIT TRAN;
 END TRY
 BEGIN CATCH
-    -- Revertir la transacci�n principal en caso de error 
+    -- Revertir la transaccion principal en caso de error 
     ROLLBACK TRAN;
 
-    -- Manejar el error (puedes registrar o lanzar una excepci�n, seg�n sea necesario)
-    PRINT 'Error al insertar en la transacci�n principal';
+    -- Manejar el error (puedes registrar o lanzar una excepcion, segun sea necesario)
+    PRINT 'Error al insertar en la transaccion principal';
 END CATCH;
 

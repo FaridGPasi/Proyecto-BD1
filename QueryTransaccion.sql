@@ -5,7 +5,7 @@ DECLARE @AdminID INT, @ConsorcioID INT;
 
 -- Inserción en la tabla "administrador"
 INSERT INTO administrador (apeynom, viveahi, tel, sexo, fechnac)
-VALUES ('JAVIER FRIAS', 'N', '370816973', 'M', '1997-02-24');
+VALUES ('JAVIER FRIAS', 'N', '370816973', 'M', '19970224');
 
 -- Obtener el ID del administrador recién insertado
 SET @AdminID = SCOPE_IDENTITY(); 

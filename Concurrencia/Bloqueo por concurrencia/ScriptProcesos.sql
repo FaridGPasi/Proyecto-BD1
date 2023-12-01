@@ -10,7 +10,7 @@ Usuario1 completa o revierte la transacción.
 
 -- PASO 1: EJECUTAR ESTE SCRIPT, luego ir a ScriptUsuario1
 
-USE base_consorcio_proyecto;
+USE base_consorcio_expo;
 
 --Se crean dos usuarios de base de datos
 CREATE LOGIN Usuario1 WITH PASSWORD = '1234';
@@ -53,3 +53,20 @@ BEGIN
     -- NO hace COMMIT ni ROLLBACK
 END;
 GO
+
+
+
+
+
+
+/*Crear usuario con permisos de lectura*/
+CREATE LOGIN UsuarioLectura WITH PASSWORD = '1234';
+CREATE USER UsuarioLectura FOR LOGIN UsuarioLectura;
+/*Conceden el permiso de lectura (SELECT) en el esquema 
+por defecto (dbo) de la base de datos*/
+GRANT SELECT ON SCHEMA::dbo TO UsuarioLectura;
+
+/*Conceder permisos para que ejecute un procedimiento*/
+GRANT EXECUTE ON dbo.Usuario1ActualizarRegistro TO UsuarioLectura;
+
+
